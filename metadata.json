@@ -1,0 +1,6 @@
+{
+  "name": "Векторная модель M&A — Скоринг и JSON-архитектура ГПБ",
+  "description": "Платформа оценки инвестпотенциала M&A-сделок Газпромбанка: векторная новизна по направлениям банка, граф кросс-продаж B2B-витрины, байесовский риск Due Diligence и поиск профилей компаний по ИНН.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
