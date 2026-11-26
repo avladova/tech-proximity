@@ -95,6 +95,9 @@ export async function computeBrowserEmbeddings(
     const { pipeline, env } = await import('@huggingface/transformers');
     env.allowLocalModels = false;
     env.useBrowserCache = true;
+    if (env.backends?.onnx?.wasm) {
+      env.backends.onnx.wasm.numThreads = 1;
+    }
 
     activePipe = await pipeline('feature-extraction', cfg.repo, {
       dtype: 'q8',
