@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   BuyerItem,
   ComparisonBaseline,
@@ -15,9 +15,14 @@ import {
 } from './utils/proximityMath';
 import { computeBrowserEmbeddings } from './utils/browserEmbeddings';
 import { RankingView } from './components/RankingView';
-import { VectorsView } from './components/VectorsView';
-import { JsonManagerView } from './components/JsonManagerView';
-import { Upload } from 'lucide-react';
+import { Download, Upload } from 'lucide-react';
+
+const VectorsView = lazy(() =>
+  import('./components/VectorsView').then((m) => ({ default: m.VectorsView }))
+);
+const JsonManagerView = lazy(() =>
+  import('./components/JsonManagerView').then((m) => ({ default: m.JsonManagerView }))
+);
 
 type ActiveTab = 'ranking' | 'vectors' | 'json';
 
@@ -216,7 +221,16 @@ export default function App() {
             })}
           </nav>
 
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            <a
+              href="./rukovodstvo.md"
+              download="rukovodstvo.md"
+              title="Скачать руководство"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Руководство</span>
+            </a>
             <button
               type="button"
               onClick={() => setActiveTab('json')}
@@ -274,30 +288,38 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'vectors' && (
-          <VectorsView
-            modelId={modelId}
-            buyerItems={buyerItems}
-            vectorsMap={activeVectorsMap}
-            rankedResults={rankedResults}
-            selectedId={selectedId}
-          />
-        )}
+        <Suspense
+          fallback={
+            <div className="p-6 text-xs text-slate-500 bg-white border border-slate-200 rounded-xl">
+              Загрузка вкладки...
+            </div>
+          }
+        >
+          {activeTab === 'vectors' && (
+            <VectorsView
+              modelId={modelId}
+              buyerItems={buyerItems}
+              vectorsMap={activeVectorsMap}
+              rankedResults={rankedResults}
+              selectedId={selectedId}
+            />
+          )}
 
-        {activeTab === 'json' && (
-          <JsonManagerView
-            buyerItems={buyerItems}
-            onUpdateBuyerItems={setBuyerItems}
-            onResetBuyerItems={() => setBuyerItems(DEFAULT_BUYER_ITEMS)}
-            targets={targets}
-            onAppendTargets={handleAppendTargets}
-            onDeleteTarget={handleDeleteTarget}
-            onResetTargets={() => {
-              setTargets(DEFAULT_TARGET_COMPANIES);
-              setSelectedId(DEFAULT_TARGET_COMPANIES[0].id);
-            }}
-          />
-        )}
+          {activeTab === 'json' && (
+            <JsonManagerView
+              buyerItems={buyerItems}
+              onUpdateBuyerItems={setBuyerItems}
+              onResetBuyerItems={() => setBuyerItems(DEFAULT_BUYER_ITEMS)}
+              targets={targets}
+              onAppendTargets={handleAppendTargets}
+              onDeleteTarget={handleDeleteTarget}
+              onResetTargets={() => {
+                setTargets(DEFAULT_TARGET_COMPANIES);
+                setSelectedId(DEFAULT_TARGET_COMPANIES[0].id);
+              }}
+            />
+          )}
+        </Suspense>
       </main>
     </div>
   );
